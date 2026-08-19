@@ -1,8 +1,8 @@
 {
-  "name": "setu-backend",
+  "name": "rkabh-backend",
   "version": "1.0.0",
   "private": true,
-  "description": "Setu anonymous construction engineer discovery and project management API",
+  "description": "ॠKABH construction professional discovery and project management API",
   "main": "server.js",
   "engines": {
     "node": ">=20"

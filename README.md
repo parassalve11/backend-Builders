@@ -1,6 +1,6 @@
-# Setu Backend
+# ॠKABH Backend
 
-Node.js, Express, and MongoDB API for Setu's anonymous engineer discovery, lead management, verification, and construction project workflows.
+Node.js, Express, and MongoDB API for ॠKABH's construction professional discovery, lead management, verification, and project workflows.
 
 ## Run locally
 
@@ -37,9 +37,26 @@ The seed is idempotent: it updates the demo records and never clears a collectio
 - an admin from `SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD`;
 - Yavatmal, Nagpur, and Amravati;
 - three anonymous verified engineer profiles;
-- approved portfolio samples and a customer-safe project view at `SETU-PROJ-0102`.
+- approved portfolio samples and a customer-safe project view at `KABH-PROJ-0102`.
 
 Keep seed credentials out of source control and rotate them before a production launch.
+
+## Deploy on Render
+
+Create a MongoDB Atlas database, allow the Render service's outbound IP addresses in
+the Atlas IP access list, and set these environment variables on the Render web service:
+
+```env
+NODE_ENV=production
+MONGODB_URI=mongodb+srv://USERNAME:PASSWORD@CLUSTER_HOST/rkabh?retryWrites=true&w=majority
+JWT_SECRET=replace-with-at-least-32-random-characters
+FRONTEND_URL=https://your-frontend.example
+```
+
+`MONGODB_URL` is accepted as a backwards-compatible alias, but `MONGODB_URI` is the
+canonical name. Production must not point to `localhost` or `127.0.0.1`, because those
+addresses refer to the Render instance itself. After saving the variables, redeploy the
+service.
 
 ## Privacy boundary
 
@@ -116,7 +133,7 @@ The lead receipt contains only:
 ```json
 {
   "success": true,
-  "data": { "leadCode": "SETU-LD-2026-ABC123", "status": "new" }
+  "data": { "leadCode": "KABH-LD-2026-ABC123", "status": "new" }
 }
 ```
 

@@ -6,7 +6,7 @@ test('public project DTO omits customer, cost, address, and internal remarks', (
   const result = toPublicProject(
     {
       _id: 'internal-id',
-      projectCode: 'SETU-PROJ-0102',
+      projectCode: 'KABH-PROJ-0102',
       engineer: { _id: 'engineer-id', pseudonymCode: 'ENG-YVT-01', fullName: 'Private Name' },
       customerName: 'Private Customer',
       customerPhone: '9876543210',

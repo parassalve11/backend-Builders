@@ -14,11 +14,11 @@ const { success, ApiError } = require('../utils/apiResponse');
 
 async function generateProjectCode() {
   for (let attempt = 0; attempt < 5; attempt += 1) {
-    const code = `SETU-PROJ-${new Date().getFullYear()}-${crypto.randomBytes(3).toString('hex').toUpperCase()}`;
+    const code = `KABH-PROJ-${new Date().getFullYear()}-${crypto.randomBytes(3).toString('hex').toUpperCase()}`;
     // eslint-disable-next-line no-await-in-loop
     if (!(await Project.exists({ projectCode: code }))) return code;
   }
-  return `SETU-PROJ-${Date.now()}`;
+  return `KABH-PROJ-${Date.now()}`;
 }
 
 async function listProjects(req, res) {

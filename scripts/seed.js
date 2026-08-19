@@ -117,7 +117,7 @@ async function seedAdmin() {
   let admin = await AdminUser.findOne({ email: adminEmail });
   if (!admin) {
     admin = await AdminUser.create({
-      fullName: 'Setu Administrator',
+      fullName: 'ॠKABH Administrator',
       email: adminEmail,
       password: adminPassword,
       role: 'superadmin',
@@ -239,9 +239,9 @@ async function seedPortfolio(engineers, admin) {
 
 async function seedPublicProject(engineer, admin) {
   const project = await Project.findOneAndUpdate(
-    { projectCode: 'SETU-PROJ-0102' },
+    { projectCode: 'KABH-PROJ-0102' },
     {
-      projectCode: 'SETU-PROJ-0102',
+      projectCode: 'KABH-PROJ-0102',
       engineer: engineer._id,
       customerName: 'Demo Customer',
       customerPhone: '9999999999',
@@ -292,9 +292,9 @@ async function seedPublicProject(engineer, admin) {
     );
   }
   const reviewProject = await Project.findOneAndUpdate(
-    { projectCode: 'SETU-PROJ-0099' },
+    { projectCode: 'KABH-PROJ-0099' },
     {
-      projectCode: 'SETU-PROJ-0099',
+      projectCode: 'KABH-PROJ-0099',
       engineer: engineer._id,
       customerName: 'Demo Review Customer',
       customerPhone: '9999999998',
@@ -338,7 +338,7 @@ async function run() {
   const engineers = await seedEngineers(admin);
   await seedPortfolio(engineers, admin);
   await seedPublicProject(engineers[0], admin);
-  console.log('Setu demo data is ready. Existing records were updated, not deleted.');
+  console.log('ॠKABH demo data is ready. Existing records were updated, not deleted.');
 }
 
 run()

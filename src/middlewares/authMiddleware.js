@@ -13,8 +13,8 @@ const requireAdminAuth = asyncHandler(async (req, _res, next) => {
   try {
     payload = jwt.verify(token, env.jwtSecret, {
       algorithms: ['HS256'],
-      issuer: 'setu-api',
-      audience: 'setu-admin',
+      issuer: 'rkabh-api',
+      audience: 'rkabh-admin',
     });
   } catch (_error) {
     throw new ApiError(401, 'Invalid or expired token');

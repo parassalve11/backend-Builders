@@ -6,11 +6,11 @@ const { success, ApiError } = require('../utils/apiResponse');
 
 async function generateLeadCode() {
   for (let attempt = 0; attempt < 5; attempt += 1) {
-    const code = `SETU-LD-${new Date().getFullYear()}-${crypto.randomBytes(3).toString('hex').toUpperCase()}`;
+    const code = `KABH-LD-${new Date().getFullYear()}-${crypto.randomBytes(3).toString('hex').toUpperCase()}`;
     // eslint-disable-next-line no-await-in-loop
     if (!(await LeadRequest.exists({ leadCode: code }))) return code;
   }
-  return `SETU-LD-${Date.now()}`;
+  return `KABH-LD-${Date.now()}`;
 }
 
 async function createLead(req, res) {
@@ -46,7 +46,7 @@ async function createLead(req, res) {
     },
     {
       status: 201,
-      message: 'Request received. Setu will review it and contact you shortly.',
+      message: 'Request received. ॠKABH will review it and contact you shortly.',
     },
   );
 }

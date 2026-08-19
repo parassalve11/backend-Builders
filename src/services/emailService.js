@@ -15,7 +15,7 @@ async function sendNewLeadEmail(lead) {
   if (!mailer || !env.smtp.adminEmail) return { delivered: false, reason: 'mail_not_configured' };
 
   const requestLabel = lead.engineerCode || 'General quote';
-  const subject = `New Setu Request — ${requestLabel}`;
+  const subject = `New ॠKABH Request — ${requestLabel}`;
   const text = [
     'New customer request received.',
     `Reference: ${lead.leadCode}`,

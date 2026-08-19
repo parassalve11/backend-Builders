@@ -10,12 +10,12 @@ async function start() {
   await connectDatabase();
   server = http.createServer(app);
   server.listen(env.port, () => {
-    console.log(`Setu API listening on http://localhost:${env.port}`);
+    console.log(`ॠKABH API listening on http://localhost:${env.port}`);
   });
 }
 
 async function shutdown(signal) {
-  console.log(`${signal} received; shutting down Setu API`);
+  console.log(`${signal} received; shutting down ॠKABH API`);
   if (server) {
     await new Promise((resolve) => server.close(resolve));
   }
@@ -27,6 +27,6 @@ process.on('SIGINT', () => void shutdown('SIGINT'));
 process.on('SIGTERM', () => void shutdown('SIGTERM'));
 
 start().catch((error) => {
-  console.error(`Unable to start Setu API: ${error.message}`);
+  console.error(`Unable to start ॠKABH API: ${error.message}`);
   process.exit(1);
 });

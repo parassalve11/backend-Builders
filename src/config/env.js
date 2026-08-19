@@ -19,10 +19,10 @@ const parseList = (value, fallback = []) =>
 const env = Object.freeze({
   nodeEnv: process.env.NODE_ENV || 'development',
   port: Number(process.env.PORT) || 5000,
-  mongoUri: process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/setu',
+  mongoUri: process.env.MONGODB_URI || process.env.MONGODB_URL || '',
   jwtSecret:
     process.env.JWT_SECRET ||
-    (process.env.NODE_ENV === 'production' ? '' : 'development-only-setu-secret-change-me'),
+    (process.env.NODE_ENV === 'production' ? '' : 'development-only-rkabh-secret-change-me'),
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || '8h',
   frontendUrls: parseList(process.env.FRONTEND_URL, ['http://localhost:3000']),
   adminDashboardUrl:
@@ -33,7 +33,7 @@ const env = Object.freeze({
     secure: parseBoolean(process.env.SMTP_SECURE),
     user: process.env.SMTP_USER || '',
     pass: process.env.SMTP_PASS || '',
-    from: process.env.MAIL_FROM || 'Setu <no-reply@setu.local>',
+    from: process.env.MAIL_FROM || 'ॠKABH Construction <no-reply@rkabhconstruction.local>',
     adminEmail: process.env.ADMIN_NOTIFICATION_EMAIL || '',
   },
 });

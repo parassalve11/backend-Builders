@@ -23,8 +23,8 @@ async function login(req, res) {
     algorithm: 'HS256',
     expiresIn: env.jwtExpiresIn,
     subject: String(admin._id),
-    issuer: 'setu-api',
-    audience: 'setu-admin',
+    issuer: 'rkabh-api',
+    audience: 'rkabh-admin',
   });
   admin.lastLoginAt = new Date();
   await admin.save();
