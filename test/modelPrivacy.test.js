@@ -13,6 +13,10 @@ const { PUBLIC_PROJECT_FIELDS, PUBLIC_STAGE_FIELDS } = require('../src/services/
 test('identity and customer fields are private-by-default at the Mongoose layer', () => {
   assert.equal(AdminUser.schema.path('password').options.select, false);
   assert.equal(AdminUser.schema.path('tokenVersion').options.select, false);
+  assert.equal(Engineer.schema.path('password').options.select, false);
+  assert.equal(Engineer.schema.path('password').options.minlength, 12);
+  assert.equal(Engineer.schema.path('tokenVersion').options.select, false);
+  assert.equal(Engineer.schema.path('lastLoginAt').options.select, false);
   for (const path of [
     'fullName',
     'phone',

@@ -30,6 +30,11 @@ test('admin resources reject missing bearer authentication', async () => {
   assert.deepEqual(response.body, { success: false, message: 'Authentication required' });
 });
 
+test('engineer portal resources reject missing bearer authentication', async () => {
+  const response = await request(app).get('/api/engineer/dashboard').expect(401);
+  assert.deepEqual(response.body, { success: false, message: 'Authentication required' });
+});
+
 test('CORS rejects origins outside the configured frontend allowlist', async () => {
   const response = await request(app)
     .get('/api/health')

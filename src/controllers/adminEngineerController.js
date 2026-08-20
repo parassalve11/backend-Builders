@@ -124,6 +124,42 @@ async function updateAvailability(req, res) {
   return success(res, engineer, { message: 'Engineer availability updated' });
 }
 
+async function provisionPortalAccess(req, res) {
+  const engineer = await Engineer.findById(req.validated.params.id).select(
+    'pseudonymCode accountStatus +email +password +tokenVersion +lastLoginAt',
+  );
+  if (!engineer) throw new ApiError(404, 'Engineer not found');
+
+  const sessionsRevoked = Boolean(engineer.password);
+  engineer.email = req.validated.body.email;
+  engineer.password = req.validated.body.password;
+  if (sessionsRevoked) {
+    engineer.tokenVersion = Number(engineer.tokenVersion || 0) + 1;
+  }
+  // Document.save() is required here so Engineer's bcrypt pre-save hook hashes the password.
+  await engineer.save();
+
+  return success(
+    res,
+    {
+      engineerId: engineer._id,
+      pseudonymCode: engineer.pseudonymCode,
+      portalAccess: {
+        enabled: true,
+        canLogin: engineer.accountStatus === 'active',
+        email: engineer.email,
+        lastLoginAt: engineer.lastLoginAt || null,
+        sessionsRevoked,
+      },
+    },
+    {
+      message: sessionsRevoked
+        ? 'Engineer portal access reset and existing sessions revoked'
+        : 'Engineer portal access provisioned',
+    },
+  );
+}
+
 async function deleteEngineer(req, res) {
   const engineer = await Engineer.findByIdAndUpdate(
     req.validated.params.id,
@@ -184,6 +220,7 @@ module.exports = {
   updateEngineer,
   updateStatus,
   updateAvailability,
+  provisionPortalAccess,
   deleteEngineer,
   listPortfolio,
   createPortfolio,

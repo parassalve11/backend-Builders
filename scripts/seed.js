@@ -11,20 +11,34 @@ const Review = require('../src/models/Review');
 
 const adminEmail = (process.env.SEED_ADMIN_EMAIL || '').trim().toLowerCase();
 const adminPassword = process.env.SEED_ADMIN_PASSWORD || '';
+const engineerEmail = (process.env.SEED_ENGINEER_EMAIL || '').trim().toLowerCase();
+const engineerPassword = process.env.SEED_ENGINEER_PASSWORD || '';
+
+function isStrongSeedPassword(password) {
+  return (
+    password.length >= 12 &&
+    /[a-z]/.test(password) &&
+    /[A-Z]/.test(password) &&
+    /\d/.test(password) &&
+    /[^A-Za-z0-9]/.test(password)
+  );
+}
 
 function assertSeedCredentials() {
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(adminEmail)) {
     throw new Error('SEED_ADMIN_EMAIL must be set to a valid email address');
   }
-  if (
-    adminPassword.length < 12 ||
-    !/[a-z]/.test(adminPassword) ||
-    !/[A-Z]/.test(adminPassword) ||
-    !/\d/.test(adminPassword) ||
-    !/[^A-Za-z0-9]/.test(adminPassword)
-  ) {
+  if (!isStrongSeedPassword(adminPassword)) {
     throw new Error(
       'SEED_ADMIN_PASSWORD must be at least 12 characters and include upper, lower, number, and symbol',
+    );
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(engineerEmail)) {
+    throw new Error('SEED_ENGINEER_EMAIL must be set to a valid email address');
+  }
+  if (!isStrongSeedPassword(engineerPassword)) {
+    throw new Error(
+      'SEED_ENGINEER_PASSWORD must be at least 12 characters and include upper, lower, number, and symbol',
     );
   }
 }
@@ -144,15 +158,35 @@ async function seedCities() {
 
 async function seedEngineers(admin) {
   const engineers = [];
-  for (const data of demoEngineers) {
+  for (const [index, data] of demoEngineers.entries()) {
+    const seededData = index === 0 ? { ...data, email: engineerEmail } : data;
     // eslint-disable-next-line no-await-in-loop
-    const engineer = await Engineer.findOneAndUpdate({ pseudonymCode: data.pseudonymCode }, data, {
+    const engineer = await Engineer.findOneAndUpdate({ pseudonymCode: data.pseudonymCode }, seededData, {
       new: true,
       upsert: true,
       runValidators: true,
       setDefaultsOnInsert: true,
     });
     engineers.push(engineer);
+    if (index === 0) {
+      // findOneAndUpdate intentionally never receives a password because it bypasses save hashing.
+      // eslint-disable-next-line no-await-in-loop
+      const credentialEngineer = await Engineer.findById(engineer._id).select('+password +tokenVersion');
+      // eslint-disable-next-line no-await-in-loop
+      const passwordMatches =
+        credentialEngineer.password &&
+        // eslint-disable-next-line no-await-in-loop
+        (await credentialEngineer.verifyPassword(engineerPassword));
+      if (!passwordMatches) {
+        const hadPassword = Boolean(credentialEngineer.password);
+        credentialEngineer.password = engineerPassword;
+        if (hadPassword) {
+          credentialEngineer.tokenVersion = Number(credentialEngineer.tokenVersion || 0) + 1;
+        }
+        // eslint-disable-next-line no-await-in-loop
+        await credentialEngineer.save();
+      }
+    }
     // eslint-disable-next-line no-await-in-loop
     await EngineerVerification.findOneAndUpdate(
       { engineer: engineer._id },

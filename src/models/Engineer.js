@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
 
 const rateSchema = new mongoose.Schema(
   {
@@ -35,7 +36,18 @@ const engineerSchema = new mongoose.Schema(
     fullName: { type: String, required: true, trim: true, maxlength: 120, select: false },
     phone: { type: String, required: true, trim: true, select: false },
     alternatePhone: { type: String, trim: true, select: false },
-    email: { type: String, lowercase: true, trim: true, select: false },
+    email: {
+      type: String,
+      lowercase: true,
+      trim: true,
+      maxlength: 254,
+      unique: true,
+      sparse: true,
+      select: false,
+    },
+    password: { type: String, minlength: 12, select: false },
+    tokenVersion: { type: Number, min: 0, default: 0, select: false },
+    lastLoginAt: { type: Date, select: false },
     exactAddress: { type: String, trim: true, maxlength: 500, select: false },
     profilePhoto: { type: String, trim: true, select: false },
     emergencyContact: { type: emergencyContactSchema, select: false },
@@ -99,5 +111,15 @@ const engineerSchema = new mongoose.Schema(
 
 engineerSchema.index({ city: 1, verified: 1, accountStatus: 1, availabilityStatus: 1 });
 engineerSchema.index({ specializations: 1, rating: -1 });
+
+engineerSchema.pre('save', async function hashPassword(next) {
+  if (!this.isModified('password')) return next();
+  this.password = await bcrypt.hash(this.password, 12);
+  return next();
+});
+
+engineerSchema.methods.verifyPassword = function verifyPassword(candidate) {
+  return bcrypt.compare(candidate, this.password);
+};
 
 module.exports = mongoose.model('Engineer', engineerSchema);

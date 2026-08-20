@@ -5,6 +5,15 @@ const availabilityStatuses = ['available', 'limited', 'unavailable'];
 const accountStatuses = ['active', 'inactive', 'suspended'];
 const verificationStatuses = ['pending', 'under_review', 'verified', 'rejected', 'expired'];
 
+const strongPasswordSchema = z
+  .string()
+  .min(12, 'Password must contain at least 12 characters')
+  .max(128)
+  .refine((value) => /[a-z]/.test(value), 'Password must include a lowercase letter')
+  .refine((value) => /[A-Z]/.test(value), 'Password must include an uppercase letter')
+  .refine((value) => /\d/.test(value), 'Password must include a number')
+  .refine((value) => /[^A-Za-z0-9]/.test(value), 'Password must include a symbol');
+
 const rateSchema = z
   .object({
     min: z.coerce.number().min(0),
@@ -78,6 +87,10 @@ const updateEngineerBodySchema = z
 
 const engineerStatusBodySchema = z.object({ status: z.enum(accountStatuses) });
 const engineerAvailabilityBodySchema = z.object({ availabilityStatus: z.enum(availabilityStatuses) });
+const portalAccessBodySchema = z.object({
+  email: z.string().trim().email().max(254).transform((value) => value.toLowerCase()),
+  password: strongPasswordSchema,
+});
 
 const publicEngineerQuerySchema = z.object({
   search: z.string().trim().max(100).optional(),
@@ -113,6 +126,7 @@ module.exports = {
   updateEngineerBodySchema,
   engineerStatusBodySchema,
   engineerAvailabilityBodySchema,
+  portalAccessBodySchema,
   publicEngineerQuerySchema,
   adminEngineerQuerySchema,
   engineerCodeParamsSchema,
@@ -120,4 +134,5 @@ module.exports = {
   availabilityStatuses,
   accountStatuses,
   verificationStatuses,
+  strongPasswordSchema,
 };

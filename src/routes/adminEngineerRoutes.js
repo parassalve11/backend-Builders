@@ -10,6 +10,7 @@ const {
   updateEngineerBodySchema,
   engineerStatusBodySchema,
   engineerAvailabilityBodySchema,
+  portalAccessBodySchema,
   adminEngineerQuerySchema,
 } = require('../validators/engineerValidators');
 const {
@@ -52,6 +53,12 @@ router.patch(
   '/engineers/:id/availability',
   validateRequest({ params: idParamsSchema, body: engineerAvailabilityBodySchema }),
   asyncHandler(controller.updateAvailability),
+);
+router.put(
+  '/engineers/:id/portal-access',
+  requireRole('superadmin', 'admin'),
+  validateRequest({ params: idParamsSchema, body: portalAccessBodySchema }),
+  asyncHandler(controller.provisionPortalAccess),
 );
 router.delete(
   '/engineers/:id',

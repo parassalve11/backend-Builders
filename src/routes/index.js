@@ -15,6 +15,7 @@ const adminPerformanceRoutes = require('./adminPerformanceRoutes');
 const adminCityRoutes = require('./adminCityRoutes');
 const adminReviewRoutes = require('./adminReviewRoutes');
 const adminDashboardRoutes = require('./adminDashboardRoutes');
+const engineerPortalRoutes = require('./engineerPortalRoutes');
 
 const router = express.Router();
 
@@ -35,6 +36,7 @@ router.use('/engineers', engineerRoutes);
 router.use('/leads', leadRoutes);
 router.use('/projects', projectRoutes);
 router.use('/reviews', reviewRoutes);
+router.use('/engineer', engineerPortalRoutes);
 
 router.use('/admin/auth', adminAuthRoutes);
 router.use('/admin', adminDashboardRoutes);

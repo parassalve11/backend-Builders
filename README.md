@@ -30,13 +30,13 @@ NEXT_PUBLIC_API_URL=http://localhost:5000/api
 
 Set a strong `JWT_SECRET` before using admin authentication. Production startup rejects secrets shorter than 32 characters.
 
-Before running the seed, set a real `SEED_ADMIN_EMAIL` and a unique `SEED_ADMIN_PASSWORD` containing at least 12 characters with upper/lowercase letters, a number, and a symbol. The seed refuses to run without them; there are no default admin credentials.
+Before running the seed, set `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD`, `SEED_ENGINEER_EMAIL`, and `SEED_ENGINEER_PASSWORD`. Both passwords must contain at least 12 characters with upper/lowercase letters, a number, and a symbol. The seed refuses to run without them; there are no hardcoded login credentials.
 
 The seed is idempotent: it updates the demo records and never clears a collection. It creates:
 
 - an admin from `SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD`;
 - Yavatmal, Nagpur, and Amravati;
-- three anonymous verified engineer profiles;
+- three anonymous verified engineer profiles, with portal credentials from `SEED_ENGINEER_EMAIL` / `SEED_ENGINEER_PASSWORD` assigned to `ENG-YVT-01`;
 - approved portfolio samples and a customer-safe project view at `KABH-PROJ-0102`.
 
 Keep seed credentials out of source control and rotate them before a production launch.
@@ -149,7 +149,7 @@ Authorization: Bearer <token>
 | --- | --- |
 | Auth | `POST /admin/auth/login`, `GET /admin/auth/me`, `POST /admin/auth/logout` |
 | Dashboard | `GET /admin/dashboard` |
-| Engineers | list/get/create/update, status, availability, soft-delete under `/admin/engineers` |
+| Engineers | list/get/create/update, status, availability, portal access, and soft-delete under `/admin/engineers` |
 | Portfolio | list/create at `/admin/engineers/:id/portfolio`; update/delete at `/admin/portfolios/:id` |
 | Leads | list/get/update and `/admin/leads/:id/assign-engineer` |
 | Projects | list/get/create/update and nested stage/estimate creation |
@@ -162,6 +162,53 @@ Authorization: Bearer <token>
 | Cities | list/create/update/deactivate under `/admin/cities` |
 
 `DELETE /api/admin/engineers/:id` is deliberately recoverable: it deactivates the engineer and makes them unavailable instead of erasing linked history.
+
+Provision or reset an engineer login as a `superadmin` or `admin`:
+
+```http
+PUT /api/admin/engineers/:id/portal-access
+Authorization: Bearer <admin-token>
+Content-Type: application/json
+
+{
+  "email": "engineer@example.com",
+  "password": "UniquePortalPass1!"
+}
+```
+
+The password must be 12–128 characters and include uppercase, lowercase, number, and symbol characters. A reset increments the engineer's token version, immediately revoking existing engineer sessions. Passwords and hashes are never returned. The response data is limited to:
+
+```json
+{
+  "engineerId": "...",
+  "pseudonymCode": "ENG-YVT-01",
+  "portalAccess": {
+    "enabled": true,
+    "canLogin": true,
+    "email": "engineer@example.com",
+    "lastLoginAt": null,
+    "sessionsRevoked": false
+  }
+}
+```
+
+## Engineer portal API
+
+Login with `POST /api/engineer/auth/login`, then send the returned token as `Authorization: Bearer <token>`. Engineer tokens use a separate `rkabh-engineer` JWT audience and cannot be used on admin routes (or vice versa).
+
+| Method | Route | Purpose |
+| --- | --- | --- |
+| POST | `/api/engineer/auth/login` | Login with the seeded engineer email/password |
+| GET | `/api/engineer/auth/me` | Current engineer account |
+| POST | `/api/engineer/auth/logout` | Revoke all existing tokens for the engineer |
+| GET | `/api/engineer/dashboard` | Own summary, recent projects/opportunities, and performance |
+| GET | `/api/engineer/profile` | Own private profile |
+| PATCH | `/api/engineer/profile/availability` | Set `available`, `limited`, or `unavailable` |
+| GET | `/api/engineer/projects` | Paginated assigned projects with stages |
+| GET | `/api/engineer/opportunities` | Paginated relevant/assigned requests without customer identity or contact |
+| GET | `/api/engineer/performance` | Own performance metrics |
+
+`projects` and `opportunities` accept `page` and `limit`; each also accepts its corresponding `status` value. Scope is always derived from the authenticated engineer ID, never from a request parameter. Opportunity responses include city, type, area, dates, and a contact-redacted project brief; customer name, phone, email, budget, and admin notes remain behind the admin introduction workflow. Once a project is assigned, its customer contact and exact site location are available to that engineer for delivery, while cost fields, admin ownership/remarks, delay reasons, and internal notes remain excluded.
 
 ## Security controls
 
